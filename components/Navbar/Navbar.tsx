@@ -1,17 +1,24 @@
 "use client";
 
-import React from "react";
-import Logo from "../Logo/Logo";
+import React, { useState } from "react";
+import Logo, { LogoMobile } from "../Logo/Logo";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { SignOutButton } from "../Button/SignOutButton";
+import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import { Menu } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
+import { Switch } from "../ui/switch";
+import { useTheme } from "next-themes";
+import { ModeToggle } from "../ModeToggle/ModeToggle";
 
 function Navbar() {
   return (
     <>
       <DesktopNavbar />
+      <MobileNavbar />
     </>
   );
 }
@@ -31,6 +38,46 @@ const menuItems = [
   },
 ];
 
+function MobileNavbar(){
+
+
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="block border-separate bg-background md:hidden">
+      <nav className="container flex items-center justify-between px-8">
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
+            <Button variant={"ghost"} size={"icon"}>
+              <Menu />
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="w-[400px] sm:w-[540px] p-2" side="left">
+            <Logo/>
+            <div className="flex flex-col gap-1 pt-4">
+              {menuItems.map((item) => (
+                <NavbarItem 
+                key={item.label}
+                link={item.href}
+                label={item.label}
+                clickCallback={() => setIsOpen(prev => !prev)}
+                />
+              ))
+              }
+            </div>
+          </SheetContent>
+        </Sheet>
+        <div className="flex h-[80px] min-h-[60px] items-center gap-x-4">
+          <LogoMobile />
+              <div className="flex items-center gap-2">
+                <ModeToggle />
+                <UserButton />
+              </div>
+        </div>
+      </nav>
+    </div>
+  )
+}
+
 function DesktopNavbar() {
   return (
     <div className="hidden border-separate border-b bg-background md:block">
@@ -46,14 +93,13 @@ function DesktopNavbar() {
               />
             ))}
           </div>
-          <SignOutButton />
         </div>
       </nav>
     </div>
   );
 }
 
-function NavbarItem({ link, label }: { link: string; label: string }) {
+function NavbarItem({ link, label, clickCallback }: { link: string; label: string; clickCallback?: () => void }) {
   const pathName = usePathname();
   const isActive = pathName === link;
 
@@ -66,6 +112,11 @@ function NavbarItem({ link, label }: { link: string; label: string }) {
           "w-full justify-start text-lg text-muted-foreground hover:text-foreground",
           isActive && "text-foreground"
         )}
+        onClick={() => {
+          if (clickCallback) {
+            clickCallback();
+          }
+        }}
       >
         {label}
       </Link>
@@ -75,5 +126,6 @@ function NavbarItem({ link, label }: { link: string; label: string }) {
     </div>
   );
 }
+
 
 export default Navbar;
