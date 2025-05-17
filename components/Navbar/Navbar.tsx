@@ -38,9 +38,7 @@ const menuItems = [
   },
 ];
 
-function MobileNavbar(){
-
-
+function MobileNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="block border-separate bg-background md:hidden">
@@ -52,30 +50,29 @@ function MobileNavbar(){
             </Button>
           </SheetTrigger>
           <SheetContent className="w-[400px] sm:w-[540px] p-2" side="left">
-            <Logo/>
+            <Logo />
             <div className="flex flex-col gap-1 pt-4">
               {menuItems.map((item) => (
-                <NavbarItem 
-                key={item.label}
-                link={item.href}
-                label={item.label}
-                clickCallback={() => setIsOpen(prev => !prev)}
+                <NavbarItem
+                  key={item.label}
+                  link={item.href}
+                  label={item.label}
+                  clickCallback={() => setIsOpen((prev) => !prev)}
                 />
-              ))
-              }
+              ))}
             </div>
           </SheetContent>
         </Sheet>
         <div className="flex h-[80px] min-h-[60px] items-center gap-x-4">
           <LogoMobile />
-              <div className="flex items-center gap-2">
-                <ModeToggle />
-                <UserButton />
-              </div>
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+            <UserButton />
+          </div>
         </div>
       </nav>
     </div>
-  )
+  );
 }
 
 function DesktopNavbar() {
@@ -99,7 +96,15 @@ function DesktopNavbar() {
   );
 }
 
-function NavbarItem({ link, label, clickCallback }: { link: string; label: string; clickCallback?: () => void }) {
+function NavbarItem({
+  link,
+  label,
+  clickCallback,
+}: {
+  link: string;
+  label: string;
+  clickCallback?: () => void;
+}) {
   const pathName = usePathname();
   const isActive = pathName === link;
 
@@ -126,6 +131,5 @@ function NavbarItem({ link, label, clickCallback }: { link: string; label: strin
     </div>
   );
 }
-
 
 export default Navbar;
