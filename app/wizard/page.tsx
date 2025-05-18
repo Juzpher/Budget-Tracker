@@ -1,4 +1,4 @@
-import { CurrencyComboBox } from "@/components/ComboBox/CUrrencyComboBox";
+import { CurrencyComboBox } from "@/components/ComboBox/CurrencyComboBox";
 import Logo from "@/components/Logo/Logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +22,7 @@ async function Page() {
     redirect("/sign-in");
   }
   return (
-    <div className="container flex max-w-2xl flex-col items-center justify-between gap-4">
+    <div className="container px-4 max-w-2xl flex flex-col items-center justify-between gap-4">
       <div>
         <h1 className="text-center text-3xl">
           Welcome <span className="ml-2 font-bold">{user.firstName} 👋</span>

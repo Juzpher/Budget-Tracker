@@ -18,3 +18,52 @@ model UserSettings {
   userId   String @id @map("_id")
   currency String
 }
+
+model Category {
+  id        String   @id @map("_id")
+  createdAt DateTime @default(now())
+  name      String
+  userId    String
+  icon      String
+  type      String   @default("income")
+
+  @@unique([name, userId, type])
+}
+
+model Transaction {
+  id        String   @id @map("_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  amount      Float
+  description String
+  date        DateTime
+  userId      String
+  type        String   @default("income")
+
+  category     String
+  categoryIcon String
+}
+
+model MonthHistory {
+  id      String @id @map("_id")
+  userId  String
+  day     Int
+  month   Int
+  year    Int
+  income  Float
+  expense Float
+
+  @@unique([userId, day, month, year])
+}
+
+model YearHistory {
+  id      String @id @map("_id")
+  userId  String
+  month   Int
+  year    Int
+  income  Float
+  expense Float
+
+  @@unique([userId, month, year])
+}
