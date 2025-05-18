@@ -7,7 +7,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "../ui/button";
 import { SignOutButton } from "../Button/SignOutButton";
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { Menu } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { Switch } from "../ui/switch";
@@ -49,8 +49,11 @@ function MobileNavbar() {
               <Menu />
             </Button>
           </SheetTrigger>
-          <SheetContent className="w-[400px] sm:w-[540px] p-2" side="left">
-            <Logo />
+          <SheetContent className="w-full sm:w-[540px] p-2" side="left">
+            <SheetTitle>
+              <Logo />
+            </SheetTitle>
+
             <div className="flex flex-col gap-1 pt-4">
               {menuItems.map((item) => (
                 <NavbarItem
