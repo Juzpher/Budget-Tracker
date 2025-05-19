@@ -25,10 +25,10 @@ async function Page() {
     <div className="container px-4 max-w-2xl flex flex-col items-center justify-between gap-4">
       <div>
         <h1 className="text-center text-3xl">
-          Welcome <span className="ml-2 font-bold">{user.firstName} 👋</span>
+          Welcome <span className="ml-2 font-bold">{user.fullName} 👋</span>
         </h1>
         <h2 className="mt-4 text-center text-base text-muted-foreground">
-          Let's get started by setting up your currency
+          Let &apos; s get started by setting up your currency
         </h2>
         <h3 className="mt-2 text-center text-sm text-muted-foreground">
           You can change this settings at anytime
