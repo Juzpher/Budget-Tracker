@@ -47,7 +47,7 @@ export default function CreateTransactionDialog({ trigger, types }: Props) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Create a New{" "}
+            Create a New
             <span
               className={cn(
                 "m-1 font-bold",
