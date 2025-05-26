@@ -6387,7 +6387,7 @@ export namespace Prisma {
 
   export type MonthHistoryWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    userId_day_month_year?: MonthHistoryUserIdDayMonthYearCompoundUniqueInput
+    day_month_year_userId?: MonthHistoryDay_month_year_userIdCompoundUniqueInput
     AND?: MonthHistoryWhereInput | MonthHistoryWhereInput[]
     OR?: MonthHistoryWhereInput[]
     NOT?: MonthHistoryWhereInput | MonthHistoryWhereInput[]
@@ -6397,7 +6397,7 @@ export namespace Prisma {
     year?: IntFilter<"MonthHistory"> | number
     income?: FloatFilter<"MonthHistory"> | number
     expense?: FloatFilter<"MonthHistory"> | number
-  }, "id" | "userId_day_month_year">
+  }, "id" | "day_month_year_userId">
 
   export type MonthHistoryOrderByWithAggregationInput = {
     id?: SortOrder
@@ -6450,7 +6450,7 @@ export namespace Prisma {
 
   export type YearHistoryWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    userId_month_year?: YearHistoryUserIdMonthYearCompoundUniqueInput
+    month_year_userId?: YearHistoryMonth_year_userIdCompoundUniqueInput
     AND?: YearHistoryWhereInput | YearHistoryWhereInput[]
     OR?: YearHistoryWhereInput[]
     NOT?: YearHistoryWhereInput | YearHistoryWhereInput[]
@@ -6459,7 +6459,7 @@ export namespace Prisma {
     year?: IntFilter<"YearHistory"> | number
     income?: FloatFilter<"YearHistory"> | number
     expense?: FloatFilter<"YearHistory"> | number
-  }, "id" | "userId_month_year">
+  }, "id" | "month_year_userId">
 
   export type YearHistoryOrderByWithAggregationInput = {
     id?: SortOrder
@@ -6980,7 +6980,7 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type MonthHistoryUserIdDayMonthYearCompoundUniqueInput = {
+  export type MonthHistoryDay_month_year_userIdCompoundUniqueInput = {
     userId: string
     day: number
     month: number
@@ -7049,7 +7049,7 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type YearHistoryUserIdMonthYearCompoundUniqueInput = {
+  export type YearHistoryMonth_year_userIdCompoundUniqueInput = {
     userId: string
     month: number
     year: number
