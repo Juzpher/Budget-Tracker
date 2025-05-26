@@ -39,11 +39,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreateCategory } from "../_actions/categories";
 import { Category } from "@/lib/generated/prisma";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 interface Props {
   type: TransactionType;
+  successCallback: (category: Category) => void;
 }
-function CreateCategoryDialog({ type }: Props) {
+function CreateCategoryDialog({ type, successCallback }: Props) {
   const [open, setOpen] = React.useState(false);
   const form = useForm<CreateCategorySchemaType>({
     resolver: zodResolver(CreateCategorySchema),
@@ -55,6 +57,7 @@ function CreateCategoryDialog({ type }: Props) {
   });
 
   const queryClient = useQueryClient();
+  const theme = useTheme();
 
   const { mutate, isPending } = useMutation({
     mutationFn: CreateCategory,
@@ -68,6 +71,8 @@ function CreateCategoryDialog({ type }: Props) {
       toast.success(`Category ${data.name} created successfully`, {
         id: "create-category",
       });
+
+      successCallback(data);
 
       setOpen((prev) => !prev);
 
@@ -85,6 +90,7 @@ function CreateCategoryDialog({ type }: Props) {
     },
     [mutate]
   );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -111,7 +117,7 @@ function CreateCategoryDialog({ type }: Props) {
             category
           </DialogTitle>
           <DialogDescription>
-            Categories are used to group yout transactions.
+            Categories are used to group your transactions.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -123,10 +129,10 @@ function CreateCategoryDialog({ type }: Props) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input defaultValue={""} {...field} />
+                    <Input placeholder="Category" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Transaction description (optional)
+                    This is how your category will appear in you app
                   </FormDescription>
                 </FormItem>
               )}
@@ -167,6 +173,7 @@ function CreateCategoryDialog({ type }: Props) {
                       <PopoverContent className="w-full">
                         <Picker
                           data={data}
+                          theme={theme.resolvedTheme}
                           onEmojiSelect={(emoji: { native: string }) => {
                             field.onChange(emoji.native);
                           }}
@@ -195,11 +202,7 @@ function CreateCategoryDialog({ type }: Props) {
               Cancel
             </Button>
           </DialogClose>
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
-            disabled={isPending}
-            className="w-18"
-          >
+          <Button onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
             {!isPending && "Create"}
             {isPending && <Loader2 className="animate-spin" />}
           </Button>
