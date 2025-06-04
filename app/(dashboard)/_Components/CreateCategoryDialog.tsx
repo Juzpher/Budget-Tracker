@@ -129,7 +129,11 @@ function CreateCategoryDialog({ type, successCallback }: Props) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Category" {...field} />
+                    <Input
+                      placeholder="Category"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormDescription>
                     This is how your category will appear in you app

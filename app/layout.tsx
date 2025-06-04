@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Budget Tracker",
+  title: "Finora - Budget Tracker",
   description: "This is a Budget Tracker Web app",
 };
 

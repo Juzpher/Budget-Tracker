@@ -133,7 +133,7 @@ export default function CreateTransactionDialog({ trigger, types }: Props) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input defaultValue={""} {...field} />
+                    <Input {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormDescription>
                     Transaction description (optional)
@@ -149,7 +149,7 @@ export default function CreateTransactionDialog({ trigger, types }: Props) {
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
-                    <Input defaultValue={0} type="number" {...field} />
+                    <Input type="number" {...field} value={field.value ?? 0} />
                   </FormControl>
                   <FormDescription>
                     Transaction amount (required)
@@ -157,13 +157,13 @@ export default function CreateTransactionDialog({ trigger, types }: Props) {
                 </FormItem>
               )}
             />
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-2">
               {/* Category */}
               <FormField
                 control={form.control}
                 name="category"
                 render={({ field }) => (
-                  <FormItem className={cn("flex flex-col")}>
+                  <FormItem className={cn("flex flex-col w-full sm:w-auto")}>
                     <FormLabel>Category</FormLabel>
                     <FormControl>
                       <CategoryPicker
@@ -182,7 +182,7 @@ export default function CreateTransactionDialog({ trigger, types }: Props) {
                 control={form.control}
                 name="date"
                 render={({ field }) => (
-                  <FormItem className={cn("flex flex-col")}>
+                  <FormItem className={cn("flex flex-col w-full sm:w-auto")}>
                     <FormLabel>Transaction date</FormLabel>
                     <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                       <PopoverTrigger asChild>
@@ -190,7 +190,7 @@ export default function CreateTransactionDialog({ trigger, types }: Props) {
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-[200px] pl-3 text-left font-normal",
+                              "w-full sm:w-[200px] pl-3 text-left font-normal",
                               !field.value && "text-muted-foreground"
                             )}
                           >

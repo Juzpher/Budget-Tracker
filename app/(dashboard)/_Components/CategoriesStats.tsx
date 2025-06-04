@@ -10,6 +10,7 @@ import { UserSettings } from "@/lib/generated/prisma";
 import { DateToUTCDate, GetFormatterForCurrency } from "@/lib/helpers";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
+import CountUp from "react-countup";
 
 interface Props {
   from: Date;
@@ -64,6 +65,7 @@ function CategoriesCard({
     (acc, el) => acc + (el._sum?.amount || 0),
     0
   );
+
   return (
     <Card className="h-80 w-full">
       <CardHeader>
@@ -95,13 +97,26 @@ function CategoriesCard({
                       <span className="flex items-center text-gray-400">
                         {item.categoryIcon} {item.category}
                         <span className="ml-2 text-xs text-muted-foreground">
-                          ( {percentage.toFixed(0)} % )
+                          ({percentage.toFixed(0)}%)
                         </span>
                       </span>
 
-                      <span className="text-sm text-gray-400">
-                        {formatter.format(amount)}
-                      </span>
+                      <CountUp
+                        preserveValue
+                        redraw={false}
+                        end={amount}
+                        decimals={2}
+                        formattingFn={(value: number) =>
+                          formatter.format(value)
+                        }
+                      >
+                        {({ countUpRef }) => (
+                          <span
+                            className="text-sm text-gray-400"
+                            ref={countUpRef}
+                          />
+                        )}
+                      </CountUp>
                     </div>
 
                     <Progress
