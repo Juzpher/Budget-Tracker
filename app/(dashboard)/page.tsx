@@ -8,12 +8,13 @@ import Overview from "./_Components/Overview";
 import History from "./_Components/History";
 
 async function page() {
-  //validating user
+  // Validate user
   const user = await currentUser();
   if (!user) {
     redirect("/sign-in");
   }
-  //validating user settings
+
+  // Validate user settings
   const userSettings = await prisma.userSettings.findUnique({
     where: {
       userId: user.id,
@@ -23,10 +24,12 @@ async function page() {
   if (!userSettings) {
     redirect("/wizard");
   }
+
   return (
     <div className="h-full bg-background">
+      {/* Header Section */}
       <div className="border-b bg-card">
-        <div className="w-full flex flex-wrap items-center justify-between gap-6 py-8   ">
+        <div className="container mx-auto px-4 py-8 flex flex-wrap items-center justify-between gap-6">
           <p className="text-3xl font-bold">Hello {user.firstName}! 👋</p>
 
           <div className="flex items-center gap-3">
@@ -34,7 +37,6 @@ async function page() {
               trigger={<Button variant="success">New Income</Button>}
               types="income"
             />
-
             <CreateTransactionDialog
               trigger={<Button variant="error">New Expense</Button>}
               types="expense"
@@ -42,9 +44,12 @@ async function page() {
           </div>
         </div>
       </div>
+
+      {/* Overview and History */}
       <Overview userSettings={userSettings} />
       <History userSettings={userSettings} />
     </div>
   );
 }
+
 export default page;

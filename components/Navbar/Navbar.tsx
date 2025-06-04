@@ -80,23 +80,25 @@ function MobileNavbar() {
 
 function DesktopNavbar() {
   return (
-    <div className="hidden border-separate border-b bg-background md:block">
-      <nav className="w-full flex items-center justify-between px-8">
-        <div className="flex h-[80px] min-h-[60px] items-center gap-x-4">
-          <Logo />
-          <div className="flex h-full">
-            {menuItems.map((item) => (
-              <NavbarItem
-                key={item.label}
-                link={item.href}
-                label={item.label}
-              />
-            ))}
+    <div className="hidden border-b bg-background md:block">
+      <nav className="w-full">
+        <div className="container mx-auto flex items-center justify-between px-4">
+          <div className="flex h-[80px] min-h-[60px] items-center gap-x-4">
+            <Logo />
+            <div className="flex h-full">
+              {menuItems.map((item) => (
+                <NavbarItem
+                  key={item.label}
+                  link={item.href}
+                  label={item.label}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <ModeToggle />
-          <UserButton />
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+            <UserButton />
+          </div>
         </div>
       </nav>
     </div>
