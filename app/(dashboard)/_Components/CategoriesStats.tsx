@@ -123,8 +123,8 @@ function CategoriesCard({
                       value={percentage}
                       indicator={
                         type === "income"
-                          ? "bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-900"
-                          : "bg-gradient-to-r from-rose-500 via-rose-600 to-rose-900"
+                          ? "bg-gradient-to-r from-emerald-900 via-emerald-600 to-emerald-500"
+                          : "bg-gradient-to-r from-rose-900 via-rose-600 to-rose-500"
                       }
                     />
                   </div>
