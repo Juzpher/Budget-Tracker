@@ -29,8 +29,10 @@ async function page() {
     <div className="h-full bg-background">
       {/* Header Section */}
       <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-8 flex flex-wrap items-center justify-between gap-6">
-          <p className="text-3xl font-bold">Hello {user.firstName}! 👋</p>
+        <div className="container mx-auto px-4 py-8 flex flex-col flex-nowrap md:flex-row md:flex-wrap items-center justify-between gap-6">
+          <p className="text-3xl font-bold">
+            Hello {user.firstName}!<span className="hidden md:inline">👋</span>
+          </p>
 
           <div className="flex items-center gap-3">
             <CreateTransactionDialog
