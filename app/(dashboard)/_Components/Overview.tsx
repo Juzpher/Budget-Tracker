@@ -20,7 +20,7 @@ const Overview = ({ userSettings }: { userSettings: UserSettings }) => {
       {/* Header section */}
       <div className="container mx-auto px-4 md:px-4 py-6">
         <div className="flex flex-wrap items-end justify-between gap-2">
-          <h2 className="text-3xl font-bold">Overview</h2>
+          <h2 className="text-3xl font-bold px-4">Overview</h2>
           <div className="flex items-center gap-3">
             <DateRangePicker
               initialDateFrom={dateRange.from}
