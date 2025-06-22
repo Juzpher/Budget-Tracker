@@ -17,6 +17,7 @@ interface Props {
   to: Date;
   userSettings: UserSettings;
 }
+
 function CategoriesStats({ from, to, userSettings }: Props) {
   const statsQuery = useQuery<GetCategoriesStatsResponseType>({
     queryKey: ["overview", "stats", "categories", from, to],
@@ -29,21 +30,22 @@ function CategoriesStats({ from, to, userSettings }: Props) {
   const formatter = React.useMemo(() => {
     return GetFormatterForCurrency(userSettings.currency);
   }, [userSettings.currency]);
+
   return (
-    <div className="flex w-full flex-wrap gap-2 md:flex-nowrap ">
+    <div className="flex w-full flex-wrap gap-2 md:flex-nowrap">
       <SkeletonWrapper isLoading={statsQuery.isFetching}>
         <CategoriesCard
           formatter={formatter}
           type="income"
           data={statsQuery.data || []}
-        ></CategoriesCard>
+        />
       </SkeletonWrapper>
       <SkeletonWrapper isLoading={statsQuery.isFetching}>
         <CategoriesCard
           formatter={formatter}
           type="expense"
           data={statsQuery.data || []}
-        ></CategoriesCard>
+        />
       </SkeletonWrapper>
     </div>
   );
@@ -60,6 +62,12 @@ function CategoriesCard({
   formatter: Intl.NumberFormat;
   data: GetCategoriesStatsResponseType;
 }) {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const filteredData = data.filter((el) => el.type === type);
   const total = filteredData.reduce(
     (acc, el) => acc + (el._sum?.amount || 0),
@@ -73,11 +81,12 @@ function CategoriesCard({
           {type === "income" ? "Incomes" : "Expenses"} by Category
         </CardTitle>
       </CardHeader>
+
       <div className="flex items-center justify-between gap-2">
         {filteredData.length === 0 && (
-          <div className="flex h-60 w-full flex-col items-center justify-center">
+          <div className="flex h-60 w-full flex-col items-center justify-center mx-5">
             No data for the selected period
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-center">
               Try Selecting a different Period or try adding new{" "}
               {type === "income" ? "incomes" : "expenses"}
             </p>
@@ -85,7 +94,7 @@ function CategoriesCard({
         )}
 
         {filteredData.length > 0 && (
-          <ScrollArea className="h-60 w-full px-4 ">
+          <ScrollArea className="h-60 w-full px-4">
             <div className="flex w-full flex-col gap-4 p-4">
               {filteredData.map((item) => {
                 const amount = item._sum?.amount || 0;
@@ -101,22 +110,30 @@ function CategoriesCard({
                         </span>
                       </span>
 
-                      <CountUp
-                        preserveValue
-                        redraw={false}
-                        end={amount}
-                        decimals={2}
-                        formattingFn={(value: number) =>
-                          formatter.format(value)
-                        }
-                      >
-                        {({ countUpRef }) => (
-                          <span
-                            className="text-sm text-gray-400"
-                            ref={countUpRef}
-                          />
-                        )}
-                      </CountUp>
+                      {mounted ? (
+                        <CountUp
+                          preserveValue
+                          redraw={false}
+                          end={amount}
+                          decimals={2}
+                          formattingFn={(value: number) =>
+                            formatter.format(value)
+                          }
+                          delay={0}
+                          duration={1}
+                        >
+                          {({ countUpRef }) => (
+                            <span
+                              className="text-sm text-gray-400"
+                              ref={countUpRef}
+                            />
+                          )}
+                        </CountUp>
+                      ) : (
+                        <span className="text-sm text-gray-400">
+                          {formatter.format(amount)}
+                        </span>
+                      )}
                     </div>
 
                     <Progress
