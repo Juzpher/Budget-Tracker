@@ -24,8 +24,8 @@ import { CreateCategory } from "../_actions/categories";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import DeleteCategoryDialog from "../_components/DeleteCategoryDialog";
-import CreateCategoryDialog from "../_components/CreateCategoryDialog";
+import DeleteCategoryDialog from "../_Components/DeleteCategoryDialog";
+import CreateCategoryDialog from "../_Components/CreateCategoryDialog";
 
 function page() {
   return (

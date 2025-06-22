@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import React from "react";
-import CreateTransactionDialog from "./_components/CreateTransactionDialog";
-import Overview from "./_components/Overview";
-import History from "./_components/History";
+import CreateTransactionDialog from "./_Components/CreateTransactionDialog";
+import Overview from "./_Components/Overview";
+import History from "./_Components/History";
 
 async function page() {
   // Validate user
