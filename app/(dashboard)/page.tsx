@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import React from "react";
-import CreateTransactionDialog from "./_Components/CreateTransactionDialog";
-import Overview from "./_Components/Overview";
-import History from "./_Components/History";
+import CreateTransactionDialog from "./_components/CreateTransactionDialog";
+import Overview from "./_components/Overview";
+import History from "./_components/History";
 
 async function page() {
   // Validate user
@@ -26,11 +26,11 @@ async function page() {
   }
 
   return (
-    <div className="h-full bg-background">
+    <div className="h-full bg-background mb-5">
       {/* Header Section */}
       <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-8 flex flex-col flex-nowrap md:flex-row md:flex-wrap items-center justify-between gap-6">
-          <p className="text-3xl font-bold">
+          <p className="text-3xl font-bold px-4">
             Hello {user.firstName}!<span className="hidden md:inline">👋</span>
           </p>
 
