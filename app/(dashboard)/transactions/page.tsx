@@ -7,10 +7,61 @@ import { toast } from "sonner";
 import TransactionTable from "./_components/TransactionTable";
 
 function Page() {
-  const [dateRange, setDateRange] = React.useState<{ from: Date; to: Date }>({
-    from: startOfMonth(new Date()),
-    to: endOfMonth(new Date()),
-  });
+  const [dateRange, setDateRange] = React.useState<{ from: Date; to: Date }>(
+    () => {
+      // Check if there's a saved date range in sessionStorage
+      if (typeof window !== "undefined") {
+        const savedRange = sessionStorage.getItem("transactionDateRange");
+        if (savedRange) {
+          try {
+            const parsed = JSON.parse(savedRange);
+            return {
+              from: new Date(parsed.from),
+              to: new Date(parsed.to),
+            };
+          } catch (error) {
+            console.error("Error parsing saved date range:", error);
+          }
+        }
+      }
+      // Default to current month if no saved range
+      return {
+        from: startOfMonth(new Date()),
+        to: endOfMonth(new Date()),
+      };
+    }
+  );
+
+  const saveDateRange = React.useCallback((from: Date, to: Date) => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(
+        "transactionDateRange",
+        JSON.stringify({
+          from: from.toISOString(),
+          to: to.toISOString(),
+        })
+      );
+    }
+  }, []);
+
+  const handleDateRangeUpdate = React.useCallback(
+    (values: { range: { from: Date; to: Date | undefined } }) => {
+      const { to, from } = values.range;
+      if (!to || !from) return;
+
+      if (differenceInDays(to, from) > MAX_DATE_RANGE_DAYS) {
+        toast.error(
+          `Date range is too long. Maximum allowed is ${MAX_DATE_RANGE_DAYS} days!`
+        );
+        return;
+      }
+
+      setDateRange({ from, to });
+      saveDateRange(from, to);
+    },
+    [saveDateRange]
+  );
+
   return (
     <>
       <div className="border-b bg-card">
@@ -22,17 +73,7 @@ function Page() {
             initialDateFrom={dateRange.from}
             initialDateTo={dateRange.to}
             showCompare={false}
-            onUpdate={(values) => {
-              const { to, from } = values.range;
-              if (!to || !from) return;
-              if (differenceInDays(to, from) > MAX_DATE_RANGE_DAYS) {
-                toast.error(
-                  `Date range is too long. Maximum allowed is ${MAX_DATE_RANGE_DAYS} days!`
-                );
-                return;
-              }
-              setDateRange({ from, to });
-            }}
+            onUpdate={handleDateRangeUpdate}
           />
         </div>
       </div>
