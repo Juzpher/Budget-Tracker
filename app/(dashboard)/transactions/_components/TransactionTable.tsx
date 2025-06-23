@@ -2,6 +2,7 @@
 import React from "react";
 import { GetTransactionHistoryResponseType } from "@/app/api/transaction-history/route";
 import { Transaction } from "@/lib/generated/prisma";
+import { TransactionType } from "@/app/types/transaction";
 import { DateToUTCDate } from "@/lib/helpers";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -39,7 +40,7 @@ interface Props {
 
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { date } from "zod";
-import { DownloadIcon, MoreHorizontal, TrashIcon } from "lucide-react";
+import { DownloadIcon, MoreHorizontal, TrashIcon, Edit } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -49,6 +50,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import DeleteTransactionDialog from "./DeleteTransactionDialog";
+import EditTransactionDialog from "./EditTransactionDialog";
 
 const emptyData: any[] = [];
 type TransactionHistoryRow = GetTransactionHistoryResponseType[0];
@@ -82,16 +84,17 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
   },
   {
     accessorKey: "date",
-    header: "Date",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={"Date"} />
+    ),
     cell: ({ row }) => {
       const date = new Date(row.original.date);
-      const fomrattedDate = date.toLocaleDateString("default", {
-        timeZone: "UTC",
+      const formattedDate = date.toLocaleDateString("default", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
       });
-      return <div className="text-muted-foreground">{fomrattedDate}</div>;
+      return <div className="text-muted-foreground">{formattedDate}</div>;
     },
   },
   {
@@ -99,9 +102,7 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={"Type"} />
-    ),
+    header: "Type",
     cell: ({ row }) => (
       <div className="flex gap-2 capitalize">
         <div
@@ -319,6 +320,11 @@ export default TransactionTable;
 
 function RowActions({ transaction }: { transaction: TransactionHistoryRow }) {
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [showEditDialog, setShowEditDialog] = React.useState(false);
+
+  const handleEdit = () => {
+    setShowEditDialog(true);
+  };
 
   return (
     <>
@@ -326,6 +332,18 @@ function RowActions({ transaction }: { transaction: TransactionHistoryRow }) {
         open={showDeleteDialog}
         setOpen={setShowDeleteDialog}
         transactionId={transaction.id}
+      />
+      <EditTransactionDialog
+        open={showEditDialog}
+        setOpen={setShowEditDialog}
+        transaction={{
+          id: transaction.id,
+          type: transaction.type as TransactionType,
+          description: transaction.description,
+          amount: transaction.amount,
+          category: transaction.category,
+          date: new Date(transaction.date),
+        }}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -341,7 +359,14 @@ function RowActions({ transaction }: { transaction: TransactionHistoryRow }) {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="flex items-center gap-2 "
+            className="flex items-center gap-2"
+            onSelect={handleEdit}
+          >
+            <Edit className="h-4 w-4" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="flex items-center gap-2"
             onSelect={() => {
               setShowDeleteDialog((prev) => !prev);
             }}
