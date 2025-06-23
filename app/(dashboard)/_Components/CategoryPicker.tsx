@@ -25,15 +25,23 @@ import CreateCategoryDialog from "./CreateCategoryDialog";
 interface Props {
   type: TransactionType;
   onChange: (value: string) => void;
+  value?: string;
 }
-function CategoryPicker({ type, onChange }: Props) {
+function CategoryPicker({ type, onChange, value: initialValue }: Props) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(initialValue || "");
 
   useEffect(() => {
     if (!value) return;
     onChange(value);
   }, [onChange, value]);
+
+  // Update internal value when initialValue changes (for editing)
+  useEffect(() => {
+    if (initialValue !== undefined) {
+      setValue(initialValue);
+    }
+  }, [initialValue]);
 
   // get categories
   const categoriesQuery = useQuery({

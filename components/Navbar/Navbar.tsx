@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "../ui/button";
 import { SignOutButton } from "../Button/SignOutButton";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, Home, CreditCard, Settings } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { Switch } from "../ui/switch";
 import { useTheme } from "next-themes";
@@ -27,14 +27,17 @@ const menuItems = [
   {
     label: "Dashboard",
     href: "/",
+    icon: Home,
   },
   {
     label: "Transactions",
     href: "/transactions",
+    icon: CreditCard,
   },
   {
     label: "Manage ",
     href: "/manage",
+    icon: Settings,
   },
 ];
 
@@ -60,6 +63,7 @@ function MobileNavbar() {
                   key={item.label}
                   link={item.href}
                   label={item.label}
+                  icon={item.icon}
                   clickCallback={() => setIsOpen((prev) => !prev)}
                 />
               ))}
@@ -91,6 +95,7 @@ function DesktopNavbar() {
                   key={item.label}
                   link={item.href}
                   label={item.label}
+                  icon={item.icon}
                 />
               ))}
             </div>
@@ -108,10 +113,12 @@ function DesktopNavbar() {
 function NavbarItem({
   link,
   label,
+  icon: Icon,
   clickCallback,
 }: {
   link: string;
   label: string;
+  icon?: React.ComponentType<{ className?: string }>;
   clickCallback?: () => void;
 }) {
   const pathName = usePathname();
@@ -123,7 +130,7 @@ function NavbarItem({
         href={link}
         className={cn(
           buttonVariants({ variant: "ghost" }),
-          "w-full justify-start text-lg text-muted-foreground hover:text-foreground",
+          "w-full justify-start text-lg text-muted-foreground hover:text-foreground flex items-center gap-2",
           isActive && "text-foreground"
         )}
         onClick={() => {
@@ -132,6 +139,7 @@ function NavbarItem({
           }
         }}
       >
+        {Icon && <Icon className="h-4 w-4" />}
         {label}
       </Link>
       {isActive && (
