@@ -32,9 +32,9 @@ export async function DeleteTransaction(id: string) {
       where: {
         day_month_year_userId: {
           userId: user.id,
-          day: transaction.date.getUTCDate(),
-          month: transaction.date.getUTCMonth(),
-          year: transaction.date.getUTCFullYear(),
+          day: transaction.date.getDate(),
+          month: transaction.date.getMonth(),
+          year: transaction.date.getFullYear(),
         },
       },
       data: {
@@ -55,8 +55,8 @@ export async function DeleteTransaction(id: string) {
       where: {
         month_year_userId: {
           userId: user.id,
-          month: transaction.date.getUTCMonth(),
-          year: transaction.date.getUTCFullYear(),
+          month: transaction.date.getMonth(),
+          year: transaction.date.getFullYear(),
         },
       },
       data: {

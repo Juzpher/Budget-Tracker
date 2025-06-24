@@ -3,7 +3,7 @@
 import { GetCategoriesStatsResponseType } from "@/app/api/stats/categories/route";
 import { TransactionType } from "@/app/types/transaction";
 import SkeletonWrapper from "@/components/Skeleton/SkeletonWrapper";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserSettings } from "@/lib/generated/prisma";
@@ -11,6 +11,8 @@ import { DateToUTCDate, GetFormatterForCurrency } from "@/lib/helpers";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import CountUp from "react-countup";
+import { TrendingUp, TrendingDown, PieChart } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   from: Date;
@@ -32,7 +34,7 @@ function CategoriesStats({ from, to, userSettings }: Props) {
   }, [userSettings.currency]);
 
   return (
-    <div className="flex w-full flex-wrap gap-2 md:flex-nowrap">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
       <SkeletonWrapper isLoading={statsQuery.isFetching}>
         <CategoriesCard
           formatter={formatter}
@@ -74,73 +76,126 @@ function CategoriesCard({
     0
   );
 
+  const isIncome = type === "income";
+
   return (
-    <Card className="h-80 w-full">
-      <CardHeader>
-        <CardTitle className="grid grid-flow-row justify-between gap-2 text-muted-foreground md:grid-flow-col">
-          {type === "income" ? "Incomes" : "Expenses"} by Category
+    <Card className="shadow-sm border bg-card overflow-hidden">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col">
+              <span className="font-semibold text-foreground">
+                {isIncome ? "Income" : "Expenses"}
+              </span>
+              <span className="text-sm text-muted-foreground">by Category</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <PieChart className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">
+              {filteredData.length} categories
+            </span>
+          </div>
         </CardTitle>
       </CardHeader>
 
-      <div className="flex items-center justify-between gap-2">
+      <CardContent className="p-0">
         {filteredData.length === 0 && (
-          <div className="flex h-60 w-full flex-col items-center justify-center mx-5">
-            No data for the selected period
-            <p className="text-sm text-muted-foreground text-center">
-              Try Selecting a different Period or try adding new{" "}
-              {type === "income" ? "incomes" : "expenses"}
-            </p>
+          <div className="flex h-60 w-full flex-col items-center justify-center p-8">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <PieChart className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div className="text-center space-y-2">
+              <p className="font-medium text-muted-foreground">
+                No data for the selected period
+              </p>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Try selecting a different period or adding new{" "}
+                {isIncome ? "income" : "expense"} transactions
+              </p>
+            </div>
           </div>
         )}
 
         {filteredData.length > 0 && (
-          <ScrollArea className="h-60 w-full px-4">
-            <div className="flex w-full flex-col gap-4 p-4">
-              {filteredData.map((item) => {
+          <ScrollArea className="h-80">
+            <div className="space-y-1 p-6 pt-2">
+              {filteredData.map((item, index) => {
                 const amount = item._sum?.amount || 0;
                 const percentage = (amount * 100) / (total || amount);
 
                 return (
-                  <div className="flex flex-col gap-2" key={item.category}>
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center text-gray-400">
-                        {item.categoryIcon} {item.category}
-                        <span className="ml-2 text-xs text-muted-foreground">
-                          ({percentage.toFixed(0)}%)
-                        </span>
-                      </span>
+                  <div
+                    key={item.category}
+                    className={cn(
+                      "group rounded-lg p-2 transition-colors hover:bg-muted/25",
+                      index % 2 === 0 ? "bg-background" : "bg-muted/10"
+                    )}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/50">
+                          <span
+                            className="text-sm"
+                            role="img"
+                            aria-label="category"
+                          >
+                            {item.categoryIcon}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-foreground capitalize text-sm">
+                            {item.category}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {percentage.toFixed(1)}% of total
+                          </span>
+                        </div>
+                      </div>
 
-                      {mounted ? (
-                        <CountUp
-                          preserveValue
-                          redraw={false}
-                          end={amount}
-                          decimals={2}
-                          formattingFn={(value: number) =>
-                            formatter.format(value)
-                          }
-                          delay={0}
-                          duration={1}
-                        >
-                          {({ countUpRef }) => (
-                            <span
-                              className="text-sm text-gray-400"
-                              ref={countUpRef}
-                            />
-                          )}
-                        </CountUp>
-                      ) : (
-                        <span className="text-sm text-gray-400">
-                          {formatter.format(amount)}
-                        </span>
-                      )}
+                      <div className="text-right">
+                        {mounted ? (
+                          <CountUp
+                            preserveValue
+                            redraw={false}
+                            end={amount}
+                            decimals={2}
+                            formattingFn={(value: number) =>
+                              formatter.format(value)
+                            }
+                            delay={0}
+                            duration={1}
+                          >
+                            {({ countUpRef }) => (
+                              <span
+                                className={cn(
+                                  "font-semibold text-sm",
+                                  isIncome ? "text-[#10b981]" : "text-[#ef4444]"
+                                )}
+                                ref={countUpRef}
+                              />
+                            )}
+                          </CountUp>
+                        ) : (
+                          <span
+                            className={cn(
+                              "font-semibold text-sm",
+                              isIncome ? "bg-[#10b981]" : "bg-[#ef4444]"
+                            )}
+                          >
+                            {formatter.format(amount)}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <Progress
                       value={percentage}
-                      indicator={
-                        type === "income" ? "bg-[#10b981]" : "bg-[#ef4444]"
-                      }
+                      className="h-2"
+                      indicator={cn(
+                        "transition-all duration-300",
+                        isIncome ? "bg-[#10b981]" : "bg-[#ef4444]"
+                      )}
                     />
                   </div>
                 );
@@ -148,7 +203,7 @@ function CategoriesCard({
             </div>
           </ScrollArea>
         )}
-      </div>
+      </CardContent>
     </Card>
   );
 }

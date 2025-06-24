@@ -45,7 +45,9 @@ function History({ userSettings }: { userSettings: UserSettings }) {
 
   return (
     <div className="container mx-auto px-4 w-full">
-      <h2 className="my-6 text-3xl font-bold">History</h2>
+      <div className="px-4">
+        <h2 className="my-6 text-3xl font-bold">History</h2>
+      </div>
       <Card className="col-span-12 mt-2 w-full">
         <CardHeader className="gap-2">
           <CardTitle className="grid grid-flow-row justify-between gap-2 md:grid-flow-col">

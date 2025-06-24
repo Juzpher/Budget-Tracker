@@ -31,12 +31,31 @@ function DeleteTransactionDialog({ open, setOpen, transactionId }: Props) {
       toast.success("Transaction deleted successfully", {
         id: transactionId,
       });
+
+      // Invalidate and refetch all related queries
       await queryClient.invalidateQueries({
         queryKey: ["transaction-history"],
+        exact: false,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["overview"],
+        exact: false,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["stats"] });
+      await queryClient.invalidateQueries({ queryKey: ["history-data"] });
+
+      // Force immediate refetch
+      await queryClient.refetchQueries({
+        queryKey: ["transaction-history"],
+        exact: false,
+      });
+      await queryClient.refetchQueries({
+        queryKey: ["overview"],
+        exact: false,
       });
     },
     onError: () => {
-      toast.error("Failed to delete category", { id: transactionId });
+      toast.error("Failed to delete transaction", { id: transactionId });
     },
   });
   return (

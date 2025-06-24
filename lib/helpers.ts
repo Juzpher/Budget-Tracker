@@ -3,13 +3,13 @@ import { Currencies } from "./currencies";
 export function DateToUTCDate(date: Date) {
   return new Date(
     Date.UTC(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate(),
-      date.getUTCHours(),
-      date.getUTCMinutes(),
-      date.getUTCSeconds(),
-      date.getUTCMilliseconds()
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      0, // Reset time to midnight
+      0,
+      0,
+      0
     )
   );
 }
