@@ -123,9 +123,27 @@ export default function EditTransactionDialog({
       form.reset();
       setOpen(false);
 
-      // Refetch the transactions
-      queryClient.invalidateQueries({ queryKey: ["overview"] });
-      queryClient.invalidateQueries({ queryKey: ["transaction-history"] });
+      // Invalidate and refetch all related queries
+      queryClient.invalidateQueries({
+        queryKey: ["transaction-history"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["overview"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
+      queryClient.invalidateQueries({ queryKey: ["history-data"] });
+
+      // Force immediate refetch
+      queryClient.refetchQueries({
+        queryKey: ["transaction-history"],
+        exact: false,
+      });
+      queryClient.refetchQueries({
+        queryKey: ["overview"],
+        exact: false,
+      });
     },
     onError: (error) => {
       toast.error("Failed to update transaction", {
@@ -137,10 +155,7 @@ export default function EditTransactionDialog({
   const onSubmit = useCallback(
     (values: CreateTransactionSchemaType) => {
       toast.loading("Updating transaction...", { id: "update-transaction" });
-      mutate({
-        ...values,
-        date: DateToUTCDate(values.date),
-      });
+      mutate(values);
     },
     [mutate]
   );

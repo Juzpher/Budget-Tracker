@@ -40,7 +40,14 @@ interface Props {
 
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { date } from "zod";
-import { DownloadIcon, MoreHorizontal, TrashIcon, Edit } from "lucide-react";
+import {
+  DownloadIcon,
+  MoreHorizontal,
+  TrashIcon,
+  Edit,
+  Calendar,
+  DollarSign,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -51,6 +58,7 @@ import {
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import DeleteTransactionDialog from "./DeleteTransactionDialog";
 import EditTransactionDialog from "./EditTransactionDialog";
+import { Badge } from "@/components/ui/badge";
 
 const emptyData: any[] = [];
 type TransactionHistoryRow = GetTransactionHistoryResponseType[0];
@@ -65,9 +73,17 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
       return value.includes(row.getValue(id));
     },
     cell: ({ row }) => (
-      <div className="flex gap-2 capitalize">
-        {row.original.categoryIcon}
-        <div className="capipitalize">{row.original.category}</div>
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50">
+          <span className="text-lg" role="img" aria-label="category">
+            {row.original.categoryIcon}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="font-medium text-foreground capitalize">
+            {row.original.category}
+          </span>
+        </div>
       </div>
     ),
   },
@@ -77,8 +93,10 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title={"Description"} />
     ),
     cell: ({ row }) => (
-      <div className="flex gap-2 capitalize">
-        <div className="capipitalize">{row.original.description}</div>
+      <div className="max-w-[200px]">
+        <span className="text-sm text-muted-foreground truncate block">
+          {row.original.description || "No description"}
+        </span>
       </div>
     ),
   },
@@ -91,10 +109,15 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
       const date = new Date(row.original.date);
       const formattedDate = date.toLocaleDateString("default", {
         year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
+        month: "short",
+        day: "numeric",
       });
-      return <div className="text-muted-foreground">{formattedDate}</div>;
+      return (
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">{formattedDate}</span>
+        </div>
+      );
     },
   },
   {
@@ -104,18 +127,17 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
     },
     header: "Type",
     cell: ({ row }) => (
-      <div className="flex gap-2 capitalize">
-        <div
-          className={cn(
-            "capipitalize rounded-lg text-center p-2 ",
-            row.original.type === "income"
-              ? "bg-emerald-400/10 text-emerald-500"
-              : "bg-rose-400/10 text-rose-500"
-          )}
-        >
-          {row.original.type}
-        </div>
-      </div>
+      <Badge
+        variant={row.original.type === "income" ? "default" : "destructive"}
+        className={cn(
+          "font-medium text-xs px-3 py-1",
+          row.original.type === "income"
+            ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400"
+            : "bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/20 dark:text-rose-400"
+        )}
+      >
+        {row.original.type}
+      </Badge>
     ),
   },
   {
@@ -124,10 +146,18 @@ const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title={"Amount"} />
     ),
     cell: ({ row }) => (
-      <div className="flex">
-        <p className="text-md rounded-lg border border-gray-400/5 p-2 text-left font-medium">
+      <div className="flex items-center">
+        <span
+          className={cn(
+            "font-semibold text-lg",
+            row.original.type === "income"
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-rose-600 dark:text-rose-400"
+          )}
+        >
+          {row.original.type === "income" ? "+" : "-"}
           {row.original.formattedAmount}
-        </p>
+        </span>
       </div>
     ),
   },
@@ -143,6 +173,7 @@ const csvConfig = mkConfig({
   decimalSeparator: ".",
   useKeysAsHeaders: true,
 });
+
 function TransactionTable({ from, to }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -150,10 +181,23 @@ function TransactionTable({ from, to }: Props) {
   );
   const history = useQuery({
     queryKey: ["transaction-history", from, to],
-    queryFn: async () =>
-      fetch(
+    queryFn: async () => {
+      const response = await fetch(
         `/api/transaction-history?from=${DateToUTCDate(from)}&to=${DateToUTCDate(to)}`
-      ).then((res) => res.json()),
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch transactions: ${response.statusText}`);
+      }
+
+      return response.json();
+    },
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (formerly cacheTime)
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch on component mount if data exists
+    retry: 2, // Retry failed requests 2 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   const handleExportCSV = (data: any[]) => {
@@ -166,11 +210,11 @@ function TransactionTable({ from, to }: Props) {
     data: history.data || emptyData,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    // initialState: {
-    //   pagination: {
-    //     pageSize: 10,
-    //   },
-    // },
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -195,10 +239,12 @@ function TransactionTable({ from, to }: Props) {
     const uniqueCategories = new Set(categoriesMap.values());
     return Array.from(uniqueCategories);
   }, [history.data]);
+
   return (
-    <div className="w-full">
-      <div className="flex flex-wrap items-end justify-between gap-2 py-4">
-        <div className="flex gap-2">
+    <div className="w-full space-y-6">
+      {/* Header with filters and actions */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-card rounded-lg border shadow-sm">
+        <div className="flex flex-wrap gap-3">
           {table.getColumn("category") && (
             <DataTableFacetedFilter
               title="Category"
@@ -217,10 +263,11 @@ function TransactionTable({ from, to }: Props) {
             />
           )}
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           <Button
             variant="outline"
             size="sm"
+            className="h-9"
             onClick={() => {
               const data = table.getFilteredRowModel().rows.map((row) => ({
                 category: row.original.category,
@@ -241,15 +288,22 @@ function TransactionTable({ from, to }: Props) {
         </div>
       </div>
 
+      {/* Table */}
       <SkeletonWrapper isLoading={history.isFetching}>
-        <div className="rounded-md border">
+        <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/50">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow
+                  key={headerGroup.id}
+                  className="border-b hover:bg-transparent"
+                >
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id} className="px-4">
+                      <TableHead
+                        key={header.id}
+                        className="px-6 py-4 font-semibold"
+                      >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -264,14 +318,17 @@ function TransactionTable({ from, to }: Props) {
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
+                table.getRowModel().rows.map((row, index) => (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="px-4"
+                    className={cn(
+                      "border-b transition-colors hover:bg-muted/25",
+                      index % 2 === 0 ? "bg-background" : "bg-muted/10"
+                    )}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="px-6 py-4">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -284,32 +341,58 @@ function TransactionTable({ from, to }: Props) {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-32 text-center"
                   >
-                    No results.
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="rounded-full bg-muted p-3">
+                        <DollarSign className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-medium text-muted-foreground">
+                          No transactions found
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Try adjusting your filters or date range
+                        </p>
+                      </div>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+
+        {/* Pagination */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
+          <div className="text-sm text-muted-foreground">
+            Showing {table.getRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} transaction(s)
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <div className="flex items-center space-x-1">
+              <span className="text-sm text-muted-foreground">
+                Page {table.getState().pagination.pageIndex + 1} of{" "}
+                {table.getPageCount()}
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </SkeletonWrapper>
     </div>
@@ -347,32 +430,31 @@ function RowActions({ transaction }: { transaction: TransactionHistoryRow }) {
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant={"ghost"} className="h-8 w-8 p-0">
+          <Button variant={"ghost"} className="h-8 w-8 p-0 hover:bg-muted">
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="border border-gray-200/10 rounded-md p-2 bg-background"
-        >
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuContent align="end" className="w-45">
+          <DropdownMenuLabel className="font-semibold">
+            Actions
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 cursor-pointer"
             onSelect={handleEdit}
           >
             <Edit className="h-4 w-4" />
-            Edit
+            Edit transaction
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
             onSelect={() => {
               setShowDeleteDialog((prev) => !prev);
             }}
           >
             <TrashIcon className="h-4 w-4" />
-            Delete
+            Delete transaction
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

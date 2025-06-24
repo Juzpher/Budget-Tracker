@@ -84,8 +84,27 @@ export default function CreateTransactionDialog({ trigger, types }: Props) {
         category: "",
         date: new Date(),
       });
-      //after the transaction is created, refetch the transactions
-      queryClient.invalidateQueries({ queryKey: ["overview"] });
+      // Invalidate and refetch all related queries
+      queryClient.invalidateQueries({
+        queryKey: ["transaction-history"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["overview"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
+      queryClient.invalidateQueries({ queryKey: ["history-data"] });
+
+      // Force immediate refetch
+      queryClient.refetchQueries({
+        queryKey: ["transaction-history"],
+        exact: false,
+      });
+      queryClient.refetchQueries({
+        queryKey: ["overview"],
+        exact: false,
+      });
 
       setOpen((prev) => !prev);
     },
