@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate && node scripts/prisma-engines.js"
+    "postinstall": "prisma generate && node scripts/prisma-engine.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.18.5",
